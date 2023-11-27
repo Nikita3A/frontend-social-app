@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-import { useDispatch } from "react-redux";
-import MyButton from "../../components/button";
-import DarkModeButton from "../../components/darkMode"
+import { useDispatch, useSelector } from "react-redux";
 import { loginStart, loginSuccess, loginFailed } from "../../redux/userSlice";
 
 import { useNavigate } from "react-router-dom";
+import jwtDecode from 'jwt-decode';
+
 
 const Signin = () => {
-  const [username, setUsername] = useState("");
+  console.log('signin rendered');
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const currentUser = useSelector(state => state.user.currentUser);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -20,10 +21,15 @@ const Signin = () => {
     e.preventDefault();
     dispatch(loginStart());
     try {
-      const res = await axios.post("/v1/auth/signin", { email, password });
-      dispatch(loginSuccess(res.data));
+      const res = await axios.post("/api/auth/signin", { email, password });
+      // console.log(res.data);
+      const { accessToken, refreshToken } = res.data; // JWT token as a string
+      const { user } = jwtDecode(accessToken); // Decode the token to get the user data
+      console.log('7y: ', user);
+      dispatch(loginSuccess({user, accessToken, refreshToken}));
       navigate("/");
     } catch (err) {
+      console.log('e:', err);
       dispatch(loginFailed());
     }
   };

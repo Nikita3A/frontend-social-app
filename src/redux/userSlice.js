@@ -15,8 +15,19 @@ export const userSlice = createSlice({
     },
     loginSuccess: (state, action) => {
       state.isLoading = false;
-      state.currentUser = action.payload;
+      state.currentUser = action.payload; // 1
+      // state.user = action.payload.user; 2
+      // 3
+      // state.currentUser = action.payload.user; 
+      // state.accessToken = action.payload.accessToken;
+      // state.refreshToken = action.payload.refreshToken;
     },
+
+    updateTokens: (state, action) => {
+      state.currentUser.accessToken = action.payload.accessToken;
+      state.currentUser.refreshToken = action.payload.refreshToken;
+    },
+
     loginFailed: (state) => {
       state.isLoading = false;
       state.error = true;
@@ -48,6 +59,7 @@ export const {
   logout,
   changeProfile,
   following,
+  updateTokens,
 } = userSlice.actions;
 
 export default userSlice.reducer;

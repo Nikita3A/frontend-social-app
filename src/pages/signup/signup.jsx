@@ -20,32 +20,18 @@ const Signup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-//   const handleSignup = async (e) => {
-//     e.preventDefault();
-//     dispatch(loginStart());
-//     try {
-//       const res = await axios.post("/v1/auth/signup", { email, firstName, surname, username, password, birthDate });
-//       dispatch(loginSuccess(res.data));
-//       navigate("/signin");
-//     } catch (err) {
-//       dispatch(loginFailed());
-//     }
-//   };
 const handleSignup = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
+    // if (password !== confirmPassword) {
+    //   alert("Passwords do not match");
+    //   return;
+    // }
     dispatch(loginStart());
     try {
-      const res = await axios.post("/v1/auth/signup", {
+      const res = await axios.post("/api/auth/signup", {
         email,
-        firstName,
-        surname,
         username,
         password,
-        birthDate,
       });
       dispatch(loginSuccess(res.data));
       navigate("/signin");
