@@ -15,12 +15,7 @@ export const userSlice = createSlice({
     },
     loginSuccess: (state, action) => {
       state.isLoading = false;
-      state.currentUser = action.payload; // 1
-      // state.user = action.payload.user; 2
-      // 3
-      // state.currentUser = action.payload.user; 
-      // state.accessToken = action.payload.accessToken;
-      // state.refreshToken = action.payload.refreshToken;
+      state.currentUser = action.payload;
     },
 
     updateTokens: (state, action) => {

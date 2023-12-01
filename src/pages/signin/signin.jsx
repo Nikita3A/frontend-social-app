@@ -9,7 +9,6 @@ import jwtDecode from 'jwt-decode';
 
 
 const Signin = () => {
-  console.log('signin rendered');
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const currentUser = useSelector(state => state.user.currentUser);
@@ -21,13 +20,46 @@ const Signin = () => {
     e.preventDefault();
     dispatch(loginStart());
     try {
-      const res = await axios.post("/api/auth/signin", { email, password });
-      // console.log(res.data);
-      const { accessToken, refreshToken } = res.data; // JWT token as a string
-      const { user } = jwtDecode(accessToken); // Decode the token to get the user data
-      console.log('7y: ', user);
+      // Check for a redirect_uri query parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectUri = urlParams.get('redirect_uri');
+      const clientId = urlParams.get('client_id');
+      const state = urlParams.get('state');
+      const response_type = urlParams.get('response_type');
+
+      const res = await axios.post("/api/auth/signin", { email, password, clientId });
+      const { accessToken, refreshToken } = res.data;
+      const { user } = jwtDecode(accessToken);
       dispatch(loginSuccess({user, accessToken, refreshToken}));
-      navigate("/");
+
+
+      if (redirectUri) {
+        // If there's a redirect_uri, make a GET request to /api/oauth/authorize
+        const url = new URL('http://localhost:3000/api/oauth/authorize');
+        url.searchParams.set('redirect_uri', redirectUri);
+        url.searchParams.set('client_id', clientId);
+        url.searchParams.set('grant_type', 'authorization_code');
+        url.searchParams.set('state', state);
+        url.searchParams.set('response_type', response_type);
+
+        const oauthRes = await axios.get(url.toString(), {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+          },
+        });
+
+        // Handle the response from /api/oauth/authorize
+        console.log(oauthRes.data.url);
+        window.location.href = oauthRes.data.url;
+      } else {
+        // If there's no redirect_uri, navigate to '/'
+        navigate("/");
+      }
+
+
+
+      
     } catch (err) {
       console.log('e:', err);
       dispatch(loginFailed());
